@@ -57,8 +57,6 @@
         <button onclick="startReading()">Iniciar Lectura</button>
         <button onclick="pauseReading()">Pausar</button>
         <button onclick="resumeReading()">Reanudar</button>
-        <label for="speed">Velocidad (ms por línea):</label>
-        <input type="number" id="speed" value="1200" min="120" step="100">
         <button onclick="increaseSpeed()">Aumentar Velocidad</button>
         <button onclick="decreaseSpeed()">Disminuir Velocidad</button>
         <p>Velocidad actual: <span id="current-speed">500</span> palabras por minuto</p>
@@ -67,15 +65,19 @@
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
     </div>
+    <div>
+        <p>Total de palabras: <span id="total-words">0</span></p>
+        <p>Palabras leídas: <span id="words-read">0</span></p>
+        <p>Porcentaje de avance: <span id="reading-progress">0%</span></p>
+    </div>
 
     <script>
         let words = [];
         let currentLineIndex = 0;
         let intervalId;
-        let currentSpeed = 1200;
-        const wpm = 500;
+        let currentSpeed = 1200; // Velocidad en ms por línea
+        let wordsPerMinute = 500; // Velocidad inicial en palabras por minuto
         const textContainer = document.getElementById('text-container');
-        const speedInput = document.getElementById('speed');
         const currentSpeedDisplay = document.getElementById('current-speed');
         const wordsPerLineDisplay = document.getElementById('words-per-line-display');
         let wordsPerLine = 10;
@@ -91,6 +93,7 @@
                     words = text.split(/\s+/);
                     textContainer.textContent = '';
                     formatText();
+                    updateWordCount();
                 };
                 reader.readAsText(file);
             }
@@ -123,6 +126,7 @@
                 textContainer.appendChild(lineDiv);
             }
             currentLineIndex = endLine;
+            updateProgress();
         }
 
         function highlightNextLine() {
@@ -141,8 +145,6 @@
 
         function startReading() {
             if (intervalId) clearInterval(intervalId);
-            currentSpeed = parseInt(speedInput.value, 10);
-            currentSpeedDisplay.textContent = calculateWpm(currentSpeed);
             intervalId = setInterval(highlightNextLine, currentSpeed);
         }
 
@@ -155,29 +157,28 @@
         }
 
         function increaseSpeed() {
-            if (currentSpeed > 120) {
-                currentSpeed -= 100;
+            wordsPerMinute += 50;
+            updateSpeed();
+        }
+
+        function decreaseSpeed() {
+            if (wordsPerMinute > 50) {
+                wordsPerMinute -= 50;
                 updateSpeed();
             }
         }
 
-        function decreaseSpeed() {
-            currentSpeed += 100;
-            updateSpeed();
-        }
-
         function updateSpeed() {
             clearInterval(intervalId);
-            speedInput.value = currentSpeed;
-            currentSpeedDisplay.textContent = calculateWpm(currentSpeed);
+            currentSpeed = calculateSpeed(wordsPerMinute);
+            currentSpeedDisplay.textContent = wordsPerMinute;
             intervalId = setInterval(highlightNextLine, currentSpeed);
         }
 
-        function calculateWpm(speed) {
-            // Convert speed from ms per line to wpm
-            const msPerWord = speed / wordsPerLine;
-            const wordsPerMinute = Math.round(60000 / msPerWord);
-            return wordsPerMinute;
+        function calculateSpeed(wpm) {
+            // Convert words per minute to ms per line
+            const msPerWord = 60000 / wpm;
+            return msPerWord * wordsPerLine;
         }
 
         function increaseWordsPerLine() {
@@ -203,11 +204,22 @@
             intervalId = setInterval(highlightNextLine, currentSpeed);
         }
 
+        function updateWordCount() {
+            document.getElementById('total-words').textContent = words.length;
+        }
+
+        function updateProgress() {
+            const wordsRead = currentLineIndex * wordsPerLine;
+            const totalWords = words.length;
+            const progress = (wordsRead / totalWords) * 100;
+            document.getElementById('words-read').textContent = wordsRead;
+            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
+        }
+
         // Set default speed to 500 words per minute on load
         window.onload = function() {
-            currentSpeed = 1200; // 1200 ms por línea es aproximadamente 500 wpm
-            speedInput.value = currentSpeed;
-            currentSpeedDisplay.textContent = calculateWpm(currentSpeed);
+            currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
+            currentSpeedDisplay.textContent = wordsPerMinute;
             wordsPerLineDisplay.textContent = wordsPerLine;
         };
     </script>
