@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lectura Rápida</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #text-container {
+            font-size: 2.4vw; /* Tamaño de fuente relativo a la ventana */
+            line-height: 1.5;
+            max-width: 90%; /* Max ancho del contenedor */
+            margin: auto;
+            white-space: pre-wrap;
+            height: auto; /* Ajustar altura automáticamente */
+            max-height: 75vh; /* Altura máxima relativa a la ventana */
+            overflow: hidden;
+            text-align: justify;
+            background-color: #f5f5f5; /* Fondo claro para mejor lectura */
+            padding: 10px;
+            border-radius: 10px; /* Esquinas redondeadas */
+        }
+        .line {
+            opacity: 0.3;
+        }
+        .highlight {
+            opacity: 1;
+            background-color: rgba(255, 255, 0, 0.5);
+        }
+        #controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button, label, input {
+            margin: 5px;
+            padding: 10px;
+            font-size: 1.2em; /* Tamaño de fuente relativo */
+        }
+        @media (max-width: 600px) {
+            #text-container {
+                font-size: 4vw; /* Ajuste de tamaño de fuente para pantallas pequeñas */
+            }
+            button, label, input {
+                font-size: 1em; /* Ajuste de tamaño de controles para pantallas pequeñas */
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Lectura Rápida</h1>
+    <input type="file" id="file-input" accept=".txt">
+    <div id="text-container"></div>
+    <div id="controls">
+        <button onclick="startReading()">Iniciar Lectura</button>
+        <button onclick="pauseReading()">Pausar</button>
+        <button onclick="resumeReading()">Reanudar</button>
+        <label for="speed">Velocidad (ms por línea):</label>
+        <input type="number" id="speed" value="1200" min="120" step="100">
+        <button onclick="increaseSpeed()">Aumentar Velocidad</button>
+        <button onclick="decreaseSpeed()">Disminuir Velocidad</button>
+        <p>Velocidad actual: <span id="current-speed">500</span> palabras por minuto</p>
+        <label for="words-per-line">Palabras por renglón:</label>
+        <button onclick="decreaseWordsPerLine()">-</button>
+        <span id="words-per-line-display">10</span>
+        <button onclick="increaseWordsPerLine()">+</button>
+    </div>
+
+    <script>
+        let words = [];
+        let currentLineIndex = 0;
+        let intervalId;
+        let currentSpeed = 1200;
+        const wpm = 500;
+        const textContainer = document.getElementById('text-container');
+        const speedInput = document.getElementById('speed');
+        const currentSpeedDisplay = document.getElementById('current-speed');
+        const wordsPerLineDisplay = document.getElementById('words-per-line-display');
+        let wordsPerLine = 10;
+        const linesPerPage = 20; // Aumentado a 20 renglones por página
+        let lines = [];
+
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    words = text.split(/\s+/);
+                    textContainer.textContent = '';
+                    formatText();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function formatText() {
+            let pageContent = '';
+            lines = [];
+            for (let i = 0; i < words.length; i++) {
+                if (i % wordsPerLine === 0 && i !== 0) {
+                    pageContent += '\n';
+                }
+                pageContent += words[i] + ' ';
+            }
+            lines = pageContent.trim().split('\n');
+            displayNextPage();
+        }
+
+        function displayNextPage() {
+            textContainer.innerHTML = '';
+            const startLine = currentLineIndex;
+            const endLine = Math.min(currentLineIndex + linesPerPage, lines.length);
+            for (let i = startLine; i < endLine; i++) {
+                const lineDiv = document.createElement('div');
+                lineDiv.textContent = lines[i];
+                lineDiv.className = 'line';
+                if (i === startLine) {
+                    lineDiv.classList.add('highlight');
+                }
+                textContainer.appendChild(lineDiv);
+            }
+            currentLineIndex = endLine;
+        }
+
+        function highlightNextLine() {
+            const currentLine = textContainer.querySelector('.highlight');
+            if (currentLine) {
+                currentLine.classList.remove('highlight');
+                currentLine.classList.add('line');
+                if (currentLine.nextElementSibling) {
+                    currentLine.nextElementSibling.classList.remove('line');
+                    currentLine.nextElementSibling.classList.add('highlight');
+                } else {
+                    displayNextPage();
+                }
+            }
+        }
+
+        function startReading() {
+            if (intervalId) clearInterval(intervalId);
+            currentSpeed = parseInt(speedInput.value, 10);
+            currentSpeedDisplay.textContent = calculateWpm(currentSpeed);
+            intervalId = setInterval(highlightNextLine, currentSpeed);
+        }
+
+        function pauseReading() {
+            clearInterval(intervalId);
+        }
+
+        function resumeReading() {
+            intervalId = setInterval(highlightNextLine, currentSpeed);
+        }
+
+        function increaseSpeed() {
+            if (currentSpeed > 120) {
+                currentSpeed -= 100;
+                updateSpeed();
+            }
+        }
+
+        function decreaseSpeed() {
+            currentSpeed += 100;
+            updateSpeed();
+        }
+
+        function updateSpeed() {
+            clearInterval(intervalId);
+            speedInput.value = currentSpeed;
+            currentSpeedDisplay.textContent = calculateWpm(currentSpeed);
+            intervalId = setInterval(highlightNextLine, currentSpeed);
+        }
+
+        function calculateWpm(speed) {
+            // Convert speed from ms per line to wpm
+            const msPerWord = speed / wordsPerLine;
+            const wordsPerMinute = Math.round(60000 / msPerWord);
+            return wordsPerMinute;
+        }
+
+        function increaseWordsPerLine() {
+            if (wordsPerLine < 12) {
+                wordsPerLine++;
+                wordsPerLineDisplay.textContent = wordsPerLine;
+                reformatText();
+            }
+        }
+
+        function decreaseWordsPerLine() {
+            if (wordsPerLine > 3) {
+                wordsPerLine--;
+                wordsPerLineDisplay.textContent = wordsPerLine;
+                reformatText();
+            }
+        }
+
+        function reformatText() {
+            clearInterval(intervalId);
+            currentLineIndex = 0;
+            formatText();
+            intervalId = setInterval(highlightNextLine, currentSpeed);
+        }
+
+        // Set default speed to 500 words per minute on load
+        window.onload = function() {
+            currentSpeed = 1200; // 1200 ms por línea es aproximadamente 500 wpm
+            speedInput.value = currentSpeed;
+            currentSpeedDisplay.textContent = calculateWpm(currentSpeed);
+            wordsPerLineDisplay.textContent = wordsPerLine;
+        };
+    </script>
+</body>
+</html>
