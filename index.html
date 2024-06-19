@@ -9,8 +9,8 @@
             margin: 20px;
         }
         #text-container {
-            font-family: Arial, sans-serif; /* Fuente de letra */
-            font-size: 10px; /* Tamaño inicial de la fuente */
+            font-family: Arial, sans-serif;
+            font-size: 12px; /* Tamaño inicial de la fuente */
             line-height: 1.5;
             max-width: 90%; /* Max ancho del contenedor */
             margin: auto;
@@ -42,7 +42,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         #progress-bar {
             width: 80%;
@@ -56,6 +56,10 @@
 </head>
 <body>
     <h1>Lectura Rápida</h1>
+    <div id="progress-container">
+        <input type="range" id="progress-bar" min="0" max="100" value="0">
+        <span id="progress-percentage">0%</span>
+    </div>
     <input type="file" id="file-input" accept=".txt">
     <div id="text-container"></div>
     <div id="controls">
@@ -74,10 +78,6 @@
         <p>Total de palabras: <span id="total-words">0</span></p>
         <p>Palabras leídas: <span id="words-read">0</span></p>
         <p>Porcentaje de avance: <span id="reading-progress">0%</span></p>
-    </div>
-    <div id="progress-container">
-        <input type="range" id="progress-bar" min="0" max="100" value="0">
-        <span id="progress-percentage">0%</span>
     </div>
 
     <script>
