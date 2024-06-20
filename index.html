@@ -79,10 +79,6 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
-        <label for="lines-per-page">Renglones por página:</label>
-        <button onclick="decreaseLinesPerPage()">-</button>
-        <span id="lines-per-page-display">20</span>
-        <button onclick="increaseLinesPerPage()">+</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -103,11 +99,10 @@
         const textContainer = document.getElementById('text-container');
         const currentSpeedDisplay = document.getElementById('current-speed');
         const wordsPerLineDisplay = document.getElementById('words-per-line-display');
-        const linesPerPageDisplay = document.getElementById('lines-per-page-display');
         const progressBar = document.getElementById('progress-bar');
         const progressPercentage = document.getElementById('progress-percentage');
         let wordsPerLine = 10;
-        let linesPerPage = 20; // Número predeterminado de renglones por página
+        let linesPerPage = 10; // Por defecto para escritorio, ajustado para tabletas
         let lines = [];
 
         document.getElementById('file-input').addEventListener('change', function(event) {
@@ -230,32 +225,11 @@
             }
         }
 
-        function increaseLinesPerPage() {
-            if (linesPerPage < 30) {
-                linesPerPage += 5;
-                linesPerPageDisplay.textContent = linesPerPage;
-                reformatText();
-                adjustFontSize();
-            }
-        }
-
-        function decreaseLinesPerPage() {
-            if (linesPerPage > 5) {
-                linesPerPage -= 5;
-                linesPerPageDisplay.textContent = linesPerPage;
-                reformatText();
-                adjustFontSize();
-            }
-        }
-
         function adjustFontSize() {
             let fontSize;
-            if (linesPerPage >= 20) {
+            if (linesPerPage === 10) {
                 fontSize = 10 + (wordsPerLine - 3) * 2;
-            } else if (linesPerPage >= 10) {
-                fontSize = 12 + (wordsPerLine - 8) * 2;
-            } else {
-                fontSize = 14 + (wordsPerLine
+            } else if (linesPerPage === 20) {
                 fontSize = 14 + (wordsPerLine - 8) * 2;
             }
             textContainer.style.fontSize = fontSize + 'px';
@@ -284,11 +258,15 @@
 
         // Set default speed to 500 words per minute on load
         window.onload = function() {
-            currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
-            currentSpeedDisplay.textContent = wordsPerMinute;
+            if (window.innerWidth > 600) {
+                linesPerPage = 10; // Escritorio
+            } else
+            } else {
+                linesPerPage = 20; // Tableta
+            }
             wordsPerLineDisplay.textContent = wordsPerLine;
-            linesPerPageDisplay.textContent = linesPerPage;
             adjustFontSize();
+            currentSpeedDisplay.textContent = wordsPerMinute;
         };
     </script>
 </body>
