@@ -53,25 +53,12 @@
             margin-left: 10px;
             font-size: 1.2em;
         }
-        @media (max-width: 600px) {
-            #text-container {
-                font-size: 4vw; /* Ajuste de tamaño de fuente para pantallas pequeñas */
-            }
-            button, label, input {
-                font-size: 1em; /* Ajuste de tamaño de controles para pantallas pequeñas */
-                padding: 8px;
-            }
-        }
     </style>
 </head>
 <body>
     <h1>Lectura Rápida</h1>
     <input type="file" id="file-input" accept=".txt">
     <div id="text-container"></div>
-    <div id="progress-container">
-        <input type="range" id="progress-bar" min="0" max="100" value="0">
-        <span id="progress-percentage">0%</span>
-    </div>
     <div id="controls">
         <button onclick="startReading()">Iniciar Lectura</button>
         <button onclick="pauseReading()">Pausar</button>
@@ -89,6 +76,10 @@
         <p>Palabras leídas: <span id="words-read">0</span></p>
         <p>Porcentaje de avance: <span id="reading-progress">0%</span></p>
     </div>
+    <div id="progress-container">
+        <input type="range" id="progress-bar" min="0" max="100" value="0">
+        <span id="progress-percentage">0%</span>
+    </div>
 
     <script>
         let words = [];
@@ -102,7 +93,7 @@
         const progressBar = document.getElementById('progress-bar');
         const progressPercentage = document.getElementById('progress-percentage');
         let wordsPerLine = 10;
-        const linesPerPage = 10; // Reducido a 10 renglones por página
+        const linesPerPage = 10; // Mostrando 10 renglones por página
         let lines = [];
 
         document.getElementById('file-input').addEventListener('change', function(event) {
@@ -164,12 +155,7 @@
                     currentLine.nextElementSibling.classList.remove('line');
                     currentLine.nextElementSibling.classList.add('highlight');
                 } else {
-                    currentLineIndex += linesPerPage; // Mover al siguiente conjunto de líneas
-                    if (currentLineIndex < lines.length) {
-                        displayNextPage();
-                    } else {
-                        clearInterval(intervalId);
-                    }
+                    displayNextPage();
                 }
             }
         }
@@ -207,7 +193,7 @@
         }
 
         function calculateSpeed(wpm) {
-            // Convertir palabras por minuto a ms por línea
+            // Convert words per minute to ms per line
             const msPerWord = 60000 / wpm;
             return msPerWord * wordsPerLine;
         }
@@ -256,8 +242,6 @@
             progressPercentage.textContent = progress.toFixed(2) + '%';
         }
 
-        // Set default speed to 500 words per minute on load
-        window.onload = function
         // Set default speed to 500 words per minute on load
         window.onload = function() {
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
