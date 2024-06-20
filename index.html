@@ -67,6 +67,10 @@
 <body>
     <h1>Lectura Rápida</h1>
     <input type="file" id="file-input" accept=".txt">
+    <div id="progress-container">
+        <input type="range" id="progress-bar" min="0" max="100" value="0">
+        <span id="progress-percentage">0%</span>
+    </div>
     <div id="text-container"></div>
     <div id="controls">
         <button onclick="startReading()">Iniciar Lectura</button>
@@ -84,10 +88,6 @@
         <p>Total de palabras: <span id="total-words">0</span></p>
         <p>Palabras leídas: <span id="words-read">0</span></p>
         <p>Porcentaje de avance: <span id="reading-progress">0%</span></p>
-    </div>
-    <div id="progress-container">
-        <input type="range" id="progress-bar" min="0" max="100" value="0">
-        <span id="progress-percentage">0%</span>
     </div>
 
     <script>
@@ -248,7 +248,8 @@
             document.getElementById('words-read').textContent = wordsRead;
             document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
             progressBar.value = progress.toFixed(2);
-            progressPercentage.textContent = progress.toFixed(2) + '%';
+            progressPercentage.textContent = progress.toFixed
+            .2 + '%';
         }
 
         // Set default speed to 500 words per minute on load
