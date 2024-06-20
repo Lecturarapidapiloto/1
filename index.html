@@ -10,7 +10,7 @@
         }
         #text-container {
             font-family: Arial, sans-serif; /* Fuente de letra */
-            font-size: 16px; /* Tamaño inicial de la fuente */
+            font-size: 10px; /* Tamaño inicial de la fuente */
             line-height: 1.5;
             max-width: 90%; /* Max ancho del contenedor */
             margin: auto;
@@ -102,10 +102,8 @@
         const progressBar = document.getElementById('progress-bar');
         const progressPercentage = document.getElementById('progress-percentage');
         let wordsPerLine = 10;
-        const linesPerPageDesktop = 10; // 10 renglones por página para escritorio
-        const linesPerPageTablet = 20; // 20 renglones por página para tablet
+        const linesPerPage = 20; // Aumentado a 20 renglones por página
         let lines = [];
-        let linesPerPage = linesPerPageDesktop; // Inicialmente para escritorio
 
         document.getElementById('file-input').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -253,7 +251,6 @@
             progressPercentage.textContent = progress.toFixed(2) + '%';
         }
 
-        // Set default speed to 500 words
         // Set default speed to 500 words per minute on load
         window.onload = function() {
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
@@ -261,56 +258,6 @@
             wordsPerLineDisplay.textContent = wordsPerLine;
             adjustFontSize();
         };
-
-        function calculateSpeed(wpm) {
-            // Convert words per minute to ms per line
-            const msPerWord = 60000 / wpm;
-            return msPerWord * wordsPerLine;
-        }
-
-        function increaseWordsPerLine() {
-            if (wordsPerLine < 12) {
-                wordsPerLine++;
-                wordsPerLineDisplay.textContent = wordsPerLine;
-                reformatText();
-                adjustFontSize();
-            }
-        }
-
-        function decreaseWordsPerLine() {
-            if (wordsPerLine > 3) {
-                wordsPerLine--;
-                wordsPerLineDisplay.textContent = wordsPerLine;
-                reformatText();
-                adjustFontSize();
-            }
-        }
-
-        function adjustFontSize() {
-            const fontSize = 10 + (wordsPerLine - 3) * 2; // Incrementar tamaño de fuente
-            textContainer.style.fontSize = fontSize + 'px';
-        }
-
-        function reformatText() {
-            clearInterval(intervalId);
-            currentLineIndex = 0;
-            formatText();
-            intervalId = setInterval(highlightNextLine, currentSpeed);
-        }
-
-        function updateWordCount() {
-            document.getElementById('total-words').textContent = words.length;
-        }
-
-        function updateProgress() {
-            const wordsRead = currentLineIndex * wordsPerLine;
-            const totalWords = words.length;
-            const progress = (wordsRead / totalWords) * 100;
-            document.getElementById('words-read').textContent = wordsRead;
-            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
-            progressBar.value = progress.toFixed(2);
-            progressPercentage.textContent = progress.toFixed(2) + '%';
-        }
     </script>
 </body>
 </html>
