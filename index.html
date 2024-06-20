@@ -102,7 +102,7 @@
         const progressBar = document.getElementById('progress-bar');
         const progressPercentage = document.getElementById('progress-percentage');
         let wordsPerLine = 10;
-        const linesPerPage = 20; // Aumentado a 20 renglones por página
+        const linesPerPage = 10; // Reducido a 10 renglones por página
         let lines = [];
 
         document.getElementById('file-input').addEventListener('change', function(event) {
@@ -164,7 +164,12 @@
                     currentLine.nextElementSibling.classList.remove('line');
                     currentLine.nextElementSibling.classList.add('highlight');
                 } else {
-                    displayNextPage();
+                    currentLineIndex += linesPerPage; // Mover al siguiente conjunto de líneas
+                    if (currentLineIndex < lines.length) {
+                        displayNextPage();
+                    } else {
+                        clearInterval(intervalId);
+                    }
                 }
             }
         }
@@ -202,7 +207,7 @@
         }
 
         function calculateSpeed(wpm) {
-            // Convert words per minute to ms per line
+            // Convertir palabras por minuto a ms por línea
             const msPerWord = 60000 / wpm;
             return msPerWord * wordsPerLine;
         }
@@ -251,6 +256,8 @@
             progressPercentage.textContent = progress.toFixed(2) + '%';
         }
 
+        // Set default speed to 500 words per minute on load
+        window.onload = function
         // Set default speed to 500 words per minute on load
         window.onload = function() {
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
