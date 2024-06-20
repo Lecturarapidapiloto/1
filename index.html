@@ -41,6 +41,10 @@
         #font-size-control {
             margin-bottom: 10px;
         }
+        #font-size-display {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
         @media (max-width: 600px) {
             #text-container {
                 font-size: 4vw; /* Ajuste de tamaño de fuente para pantallas pequeñas */
@@ -59,6 +63,7 @@
     <div id="font-size-control">
         <label for="font-size-range">Tamaño de letra:</label>
         <input type="range" id="font-size-range" min="10" max="30" value="24" step="1" onchange="adjustFontSize()">
+        <div id="font-size-display">Tamaño actual: 24px</div>
     </div>
     <div id="controls">
         <button onclick="startReading()">Iniciar Lectura</button>
@@ -88,6 +93,7 @@
         const currentSpeedDisplay = document.getElementById('current-speed');
         const wordsPerLineDisplay = document.getElementById('words-per-line-display');
         const fontSizeRange = document.getElementById('font-size-range');
+        const fontSizeDisplay = document.getElementById('font-size-display');
         let wordsPerLine = 10;
         const linesPerPage = 20; // Aumentado a 20 renglones por página
         let lines = [];
@@ -208,6 +214,7 @@
         function adjustFontSize() {
             const newSize = fontSizeRange.value + 'px';
             textContainer.style.fontSize = newSize;
+            fontSizeDisplay.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
         }
 
         function reformatText() {
