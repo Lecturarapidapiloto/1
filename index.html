@@ -79,6 +79,7 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
+        <p>Tamaño de letra actual: <span id="current-font-size">10</span>px</p>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -101,6 +102,7 @@
         const wordsPerLineDisplay = document.getElementById('words-per-line-display');
         const progressBar = document.getElementById('progress-bar');
         const progressPercentage = document.getElementById('progress-percentage');
+        const currentFontSizeDisplay = document.getElementById('current-font-size');
         let wordsPerLine = 10;
         const linesPerPage = 20; // Aumentado a 20 renglones por página
         let lines = [];
@@ -228,6 +230,7 @@
         function adjustFontSize() {
             const fontSize = 10 + (wordsPerLine - 3) * 2; // Incrementar tamaño de fuente
             textContainer.style.fontSize = fontSize + 'px';
+            currentFontSizeDisplay.textContent = fontSize; // Mostrar tamaño de fuente actual
         }
 
         function reformatText() {
@@ -246,6 +249,7 @@
             const totalWords = words.length;
             const progress = (wordsRead / totalWords) * 100;
             document.getElementById('words-read').textContent = wordsRead;
+            document.getElementById('reading-progress').textContent = progress.toFixed(
             document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
             progressBar.value = progress.toFixed(2);
             progressPercentage.textContent = progress.toFixed(2) + '%';
