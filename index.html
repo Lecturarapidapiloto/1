@@ -9,8 +9,7 @@
             margin: 20px;
         }
         #text-container {
-            font-family: Arial, sans-serif; /* Fuente de letra */
-            font-size: 10px; /* Tamaño inicial de la fuente */
+            font-size: 2.4vw; /* Tamaño de fuente relativo a la ventana */
             line-height: 1.5;
             max-width: 90%; /* Max ancho del contenedor */
             margin: auto;
@@ -38,20 +37,6 @@
             margin: 5px;
             padding: 10px;
             font-size: 1.2em; /* Tamaño de fuente relativo */
-        }
-        #progress-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        #progress-bar {
-            width: 80%;
-            height: 20px;
-        }
-        #progress-percentage {
-            margin-left: 10px;
-            font-size: 1.2em;
         }
         @media (max-width: 600px) {
             #text-container {
@@ -85,10 +70,6 @@
         <p>Palabras leídas: <span id="words-read">0</span></p>
         <p>Porcentaje de avance: <span id="reading-progress">0%</span></p>
     </div>
-    <div id="progress-container">
-        <input type="range" id="progress-bar" min="0" max="100" value="0">
-        <span id="progress-percentage">0%</span>
-    </div>
 
     <script>
         let words = [];
@@ -99,8 +80,6 @@
         const textContainer = document.getElementById('text-container');
         const currentSpeedDisplay = document.getElementById('current-speed');
         const wordsPerLineDisplay = document.getElementById('words-per-line-display');
-        const progressBar = document.getElementById('progress-bar');
-        const progressPercentage = document.getElementById('progress-percentage');
         let wordsPerLine = 10;
         const linesPerPage = 20; // Aumentado a 20 renglones por página
         let lines = [];
@@ -118,12 +97,6 @@
                 };
                 reader.readAsText(file);
             }
-        });
-
-        progressBar.addEventListener('input', function() {
-            const percentage = progressBar.value;
-            currentLineIndex = Math.floor((percentage / 100) * lines.length);
-            displayNextPage();
         });
 
         function formatText() {
@@ -152,6 +125,7 @@
                 }
                 textContainer.appendChild(lineDiv);
             }
+            currentLineIndex = endLine;
             updateProgress();
         }
 
@@ -212,7 +186,6 @@
                 wordsPerLine++;
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
-                adjustFontSize();
             }
         }
 
@@ -221,13 +194,7 @@
                 wordsPerLine--;
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
-                adjustFontSize();
             }
-        }
-
-        function adjustFontSize() {
-            const fontSize = 10 + (wordsPerLine - 3) * 2; // Incrementar tamaño de fuente
-            textContainer.style.fontSize = fontSize + 'px';
         }
 
         function reformatText() {
@@ -247,8 +214,6 @@
             const progress = (wordsRead / totalWords) * 100;
             document.getElementById('words-read').textContent = wordsRead;
             document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
-            progressBar.value = progress.toFixed(2);
-            progressPercentage.textContent = progress.toFixed(2) + '%';
         }
 
         // Set default speed to 500 words per minute on load
@@ -256,7 +221,6 @@
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
             currentSpeedDisplay.textContent = wordsPerMinute;
             wordsPerLineDisplay.textContent = wordsPerLine;
-            adjustFontSize();
         };
     </script>
 </body>
