@@ -38,6 +38,9 @@
             padding: 10px;
             font-size: 1.2em; /* Tamaño de fuente relativo */
         }
+        #font-size-control {
+            margin-bottom: 10px;
+        }
         @media (max-width: 600px) {
             #text-container {
                 font-size: 4vw; /* Ajuste de tamaño de fuente para pantallas pequeñas */
@@ -53,6 +56,10 @@
     <h1>Lectura Rápida</h1>
     <input type="file" id="file-input" accept=".txt">
     <div id="text-container"></div>
+    <div id="font-size-control">
+        <label for="font-size-range">Tamaño de letra:</label>
+        <input type="range" id="font-size-range" min="10" max="30" value="24" step="1" onchange="adjustFontSize()">
+    </div>
     <div id="controls">
         <button onclick="startReading()">Iniciar Lectura</button>
         <button onclick="pauseReading()">Pausar</button>
@@ -80,6 +87,7 @@
         const textContainer = document.getElementById('text-container');
         const currentSpeedDisplay = document.getElementById('current-speed');
         const wordsPerLineDisplay = document.getElementById('words-per-line-display');
+        const fontSizeRange = document.getElementById('font-size-range');
         let wordsPerLine = 10;
         const linesPerPage = 20; // Aumentado a 20 renglones por página
         let lines = [];
@@ -195,6 +203,11 @@
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
+        }
+
+        function adjustFontSize() {
+            const newSize = fontSizeRange.value + 'px';
+            textContainer.style.fontSize = newSize;
         }
 
         function reformatText() {
