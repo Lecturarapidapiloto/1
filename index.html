@@ -58,6 +58,7 @@
 </head>
 <body>
     <h1>Lectura Rápida</h1>
+    <button id="toggle-reading" onclick="toggleReading()">Iniciar Lectura</button>
     <input type="file" id="file-input" accept=".txt">
     <div id="text-container"></div>
     <div id="font-size-control">
@@ -66,9 +67,6 @@
         <div id="font-size-display">Tamaño actual: 24px</div>
     </div>
     <div id="controls">
-        <button onclick="startReading()">Iniciar Lectura</button>
-        <button onclick="pauseReading()">Pausar</button>
-        <button onclick="resumeReading()">Reanudar</button>
         <button onclick="increaseSpeed()">Aumentar Velocidad</button>
         <button onclick="decreaseSpeed()">Disminuir Velocidad</button>
         <p>Velocidad actual: <span id="current-speed">500</span> palabras por minuto</p>
@@ -157,17 +155,16 @@
             }
         }
 
-        function startReading() {
-            if (intervalId) clearInterval(intervalId);
-            intervalId = setInterval(highlightNextLine, currentSpeed);
-        }
-
-        function pauseReading() {
-            clearInterval(intervalId);
-        }
-
-        function resumeReading() {
-            intervalId = setInterval(highlightNextLine, currentSpeed);
+        function toggleReading() {
+            const button = document.getElementById('toggle-reading');
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+                button.textContent = 'Iniciar Lectura';
+            } else {
+                intervalId = setInterval(highlightNextLine, currentSpeed);
+                button.textContent = 'Pausar';
+            }
         }
 
         function increaseSpeed() {
