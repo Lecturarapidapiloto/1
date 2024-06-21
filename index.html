@@ -80,6 +80,7 @@
         <p>Total de palabras: <span id="total-words">0</span></p>
         <p>Palabras leídas: <span id="words-read">0</span></p>
         <p>Porcentaje de avance: <span id="reading-progress">0%</span></p>
+        <p>Página actual: <span id="current-page">1</span> de <span id="total-pages">1</span></p>
     </div>
     <div id="timer-control">
         <label for="reading-time">Tiempo de lectura (minutos):</label>
@@ -106,6 +107,8 @@
         let lines = [];
         let readingTime = 5; // Tiempo de lectura en minutos
         let timeLeft = readingTime * 60; // Tiempo restante en segundos
+        let totalPages = 1; // Número total de páginas
+        let currentPage = 1; // Página actual
 
         document.getElementById('file-input').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -117,6 +120,7 @@
                     textContainer.textContent = '';
                     formatText();
                     updateWordCount();
+                    calculateTotalPages();
                 };
                 reader.readAsText(file);
             }
@@ -149,7 +153,9 @@
                 textContainer.appendChild(lineDiv);
             }
             currentLineIndex = endLine;
+            currentPage = Math.ceil(currentLineIndex / linesPerPage);
             updateProgress();
+            updatePageDisplay();
         }
 
         function highlightNextLine() {
@@ -220,6 +226,11 @@
             clearInterval(intervalId);
             currentSpeed = calculateSpeed(wordsPerMinute);
             currentSpeedDisplay.textContent = wordsPerMinute;
+            if (intervalId
+        function updateSpeed() {
+            clearInterval(intervalId);
+            currentSpeed = calculateSpeed(wordsPerMinute);
+            currentSpeedDisplay.textContent = wordsPerMinute;
             if (intervalId) {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
             }
@@ -242,7 +253,6 @@
         function decreaseWordsPerLine() {
             if (wordsPerLine > 3) {
                 wordsPerLine--;
-                wordsPerLineDisplay.text
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
@@ -258,6 +268,7 @@
             clearInterval(intervalId);
             currentLineIndex = 0;
             formatText();
+            calculateTotalPages();
             if (intervalId) {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
             }
@@ -294,6 +305,17 @@
                 timeLeft = readingTime * 60;
                 updateTimerDisplay();
             }
+        }
+
+        function calculateTotalPages() {
+            totalPages = Math.ceil(lines.length / linesPerPage);
+            document.getElementById('total-pages').textContent = totalPages;
+            updatePageDisplay();
+        }
+
+        function updatePageDisplay() {
+            currentPage = Math.ceil(currentLineIndex / linesPerPage) + 1;
+            document.getElementById('current-page').textContent = currentPage;
         }
 
         // Set default speed to 500 words per minute on load
