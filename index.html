@@ -74,6 +74,8 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
+        <button onclick="goToPreviousPage()">Página Anterior</button>
+        <button onclick="goToNextPage()">Siguiente Página</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -242,7 +244,6 @@
         function decreaseWordsPerLine() {
             if (wordsPerLine > 3) {
                 wordsPerLine--;
-                wordsPerLineDisplay.text
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
@@ -257,7 +258,6 @@
         function reformatText() {
             clearInterval(intervalId);
             currentLineIndex = 0;
-            format
             formatText();
             if (intervalId) {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
