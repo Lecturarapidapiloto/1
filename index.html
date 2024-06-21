@@ -74,6 +74,7 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
+        <button onclick="previousPage()">Página Anterior</button>
         <button onclick="nextPage()">Siguiente Página</button>
     </div>
     <div>
@@ -152,6 +153,12 @@
             updateProgress();
         }
 
+        function displayPreviousPage() {
+            const startLine = Math.max(0, currentLineIndex - linesPerPage * 2); // Ir dos páginas atrás para evitar recargar la página actual
+            currentLineIndex = startLine;
+            displayNextPage();
+        }
+
         function highlightNextLine() {
             const currentLine = textContainer.querySelector('.highlight');
             if (currentLine) {
@@ -167,21 +174,21 @@
         }
 
         function toggleReading() {
-    const button = document.getElementById('toggle-reading');
-    if (intervalId) {
-        clearInterval(intervalId);
-        clearInterval(timerId);
-        intervalId = null;
-        timerId = null;
-        isActive = false;
-        button.textContent = 'Iniciar Lectura';
-    } else {
-        intervalId = setInterval(highlightNextLine, currentSpeed);
-        isActive = true;
-        startTimer();
-        button.textContent = 'Pausar';
-    }
-}
+            const button = document.getElementById('toggle-reading');
+            if (intervalId) {
+                clearInterval(intervalId);
+                clearInterval(timerId);
+                intervalId = null;
+                timerId = null;
+                isActive = false;
+                button.textContent = 'Iniciar Lectura';
+            } else {
+                intervalId = setInterval(highlightNextLine, currentSpeed);
+                isActive = true;
+                startTimer();
+                button.textContent = 'Pausar';
+            }
+        }
 
         function startTimer() {
             timeLeft = readingTime * 60;
@@ -228,7 +235,6 @@
         }
 
         function calculateSpeed(wpm) {
-            // Convert words per minute to ms per line
             const msPerWord = 60000 / wpm;
             return msPerWord * wordsPerLine;
         }
@@ -239,12 +245,10 @@
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
-        }
-
+       
         function decreaseWordsPerLine() {
             if (wordsPerLine > 3) {
                 wordsPerLine--;
-                wordsPerLineDisplay.text
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
@@ -282,6 +286,11 @@
             displayNextPage();
         }
 
+        function previousPage() {
+            currentLineIndex = Math.max(0, currentLineIndex - linesPerPage);
+            displayPreviousPage();
+        }
+
         function increaseReadingTime() {
             readingTime++;
             document.getElementById('reading-time-display').textContent = readingTime;
@@ -298,7 +307,6 @@
             }
         }
 
-        // Set default speed to 500 words per minute on load
         window.onload = function() {
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
             currentSpeedDisplay.textContent = wordsPerMinute;
@@ -306,25 +314,25 @@
             document.getElementById('reading-time-display').textContent = readingTime;
             updateTimerDisplay();
         };
+
         let isActive = true; // Variable para controlar si el usuario está activo
 
-function handleVisibilityChange() {
-    if (document.visibilityState === 'visible') {
-        if (isActive && intervalId) {
-            // Reiniciar el temporizador solo si el usuario está activo y hay una lectura en curso
-            startTimer();
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'visible') {
+                if (isActive && intervalId) {
+                    startTimer();
+                }
+                document.getElementById('toggle-reading').textContent = 'Pausar';
+            } else {
+                clearInterval(intervalId);
+                clearInterval(timerId);
+                intervalId = null;
+                timerId = null;
+                document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
+            }
         }
-        document.getElementById('toggle-reading').textContent = 'Pausar';
-    } else {
-        clearInterval(intervalId);
-        clearInterval(timerId);
-        intervalId = null;
-        timerId = null;
-        document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
-    }
-}
 
-document.addEventListener('visibilitychange', handleVisibilityChange);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
     </script>
 </body>
