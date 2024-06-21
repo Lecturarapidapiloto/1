@@ -106,6 +106,7 @@
         let lines = [];
         let readingTime = 5; // Tiempo de lectura en minutos
         let timeLeft = readingTime * 60; // Tiempo restante en segundos
+        let wakeLock = null;
 
         document.getElementById('file-input').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -121,6 +122,25 @@
                 reader.readAsText(file);
             }
         });
+
+        async function requestWakeLock() {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) {
+                console.error(`Falló el intento de adquirir wake lock: ${err.name}, ${err.message}`);
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock !== null) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (err) {
+                    console.error(`Falló el intento de liberar wake lock: ${err.name}, ${err.message}`);
+                }
+            }
+        }
 
         function formatText() {
             let pageContent = '';
@@ -173,10 +193,12 @@
                 clearInterval(timerId);
                 intervalId = null;
                 timerId = null;
+                releaseWakeLock();
                 button.textContent = 'Iniciar Lectura';
             } else {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
                 startTimer();
+                requestWakeLock();
                 button.textContent = 'Pausar';
             }
         }
@@ -193,6 +215,7 @@
                     clearInterval(timerId);
                     intervalId = null;
                     timerId = null;
+                    releaseWakeLock();
                     document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
                 }
             }, 1000);
@@ -220,13 +243,14 @@
             clearInterval(intervalId);
             currentSpeed = calculateSpeed(wordsPerMinute);
             currentSpeedDisplay.textContent = wordsPerMinute;
+            if (
             if (intervalId) {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
             }
         }
 
         function calculateSpeed(wpm) {
-            // Convert words per minute to ms per line
+            // Convertir palabras por minuto a ms por línea
             const msPerWord = 60000 / wpm;
             return msPerWord * wordsPerLine;
         }
@@ -242,7 +266,6 @@
         function decreaseWordsPerLine() {
             if (wordsPerLine > 3) {
                 wordsPerLine--;
-                wordsPerLineDisplay.text
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
@@ -296,7 +319,7 @@
             }
         }
 
-        // Set default speed to 500 words per minute on load
+        // Establecer velocidad predeterminada a 500 palabras por minuto al cargar
         window.onload = function() {
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
             currentSpeedDisplay.textContent = wordsPerMinute;
