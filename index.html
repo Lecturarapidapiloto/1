@@ -250,12 +250,12 @@
             }
         }
 
-        function adjustFontSize() {
-            const newSize = fontSize
-            const newSize = fontSizeRange.value + 'px';
-            textContainer.style.fontSize = newSize;
-            fontSizeDisplay.textContent = `Tamaño actual: ${newSize}`;
-        }
+       function adjustFontSize() {
+    const newSize = fontSizeRange.value + 'px';
+    textContainer.style.fontSize = newSize;
+    fontSizeDisplay.textContent = `Tamaño actual: ${fontSizeRange.value}px`;
+}
+
 
         function goToPreviousPage() {
             if (currentLineIndex > linesPerPage) {
