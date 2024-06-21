@@ -54,23 +54,6 @@
                 padding: 8px;
             }
         }
-
-        /* Estilos para los controles de página */
-        #page-controls {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        #page-controls h2 {
-            font-size: 1.5em;
-        }
-
-        #prev-page,
-        #next-page {
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 1.2em;
-        }
     </style>
 </head>
 <body>
@@ -91,7 +74,6 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
-        <button onclick="nextPage()">Siguiente Página</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -104,13 +86,6 @@
         <span id="reading-time-display">5</span>
         <button onclick="increaseReadingTime()">+</button>
         <p>Tiempo restante: <span id="time-left">5:00</span></p>
-    </div>
-
-    <!-- Contenedor para los controles de página -->
-    <div id="page-controls">
-        <h2>Páginas</h2>
-        <button id="prev-page" onclick="previousPage()"></button>
-        <button id="next-page" onclick="nextPage()"></button>
     </div>
 
     <script>
@@ -174,7 +149,7 @@
             }
             currentLineIndex = endLine;
             updateProgress();
-            updatePageButtons();
+            updatePageButtons(); // Llamamos a la función para actualizar los botones de página
         }
 
         function highlightNextLine() {
@@ -246,9 +221,11 @@
             currentSpeed = calculateSpeed(wordsPerMinute);
             currentSpeedDisplay.textContent = wordsPerMinute;
             if (intervalId) {
-                intervalId = setInterval(high
+                intervalId = setInterval(highlightNextLine, currentSpeed);
+            }
+        }
+
         function calculateSpeed(wpm) {
-            // Convertir palabras por minuto a milisegundos por línea
             const msPerWord = 60000 / wpm;
             return msPerWord * wordsPerLine;
         }
@@ -264,6 +241,16 @@
         function decreaseWordsPerLine() {
             if (wordsPerLine > 3) {
                 wordsPerLine--;
+                wordsPerLineDisplay.text
+                wordsPerLineDisplay.textContent = wordsPerLine;
+                reformatText();
+            }
+        }
+
+        function adjustFontSize() {
+        function decreaseWordsPerLine() {
+            if (wordsPerLine > 3) {
+                wordsPerLine--;
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
@@ -272,65 +259,49 @@
         function adjustFontSize() {
             const newSize = fontSizeRange.value + 'px';
             textContainer.style.fontSize = newSize;
-            fontSizeDisplay.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
-        }
-
-        function reformatText() {
-            clearInterval(intervalId);
-            currentLineIndex = 0;
-            formatText();
-            if (intervalId) {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-            }
+            fontSizeDisplay.textContent = 'Tamaño actual: ' + newSize;
         }
 
         function updateWordCount() {
             document.getElementById('total-words').textContent = words.length;
         }
 
-        function updateProgress() {
-            const wordsRead = currentLineIndex * wordsPerLine;
-            const totalWords = words.length;
-            const progress = (wordsRead / totalWords) * 100;
-            document.getElementById('words-read').textContent = wordsRead;
-            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
-        }
-
-        function nextPage() {
-            currentLineIndex = Math.min(currentLineIndex + linesPerPage, lines.length);
+        function reformatText() {
+            formatText();
             displayNextPage();
         }
 
+        function updateProgress() {
+            const progress = ((currentLineIndex / lines.length) * 100).toFixed(2);
+            document.getElementById('reading-progress').textContent = progress + '%';
+            document.getElementById('words-read').textContent = currentLineIndex * wordsPerLine;
+        }
+
         function previousPage() {
-            currentLineIndex = Math.max(currentLineIndex - linesPerPage, 0);
+            currentLineIndex = Math.max(0, currentLineIndex - linesPerPage);
+            displayNextPage();
+        }
+
+        function nextPage() {
             displayNextPage();
         }
 
         function updatePageButtons() {
             const prevButton = document.getElementById('prev-page');
             const nextButton = document.getElementById('next-page');
-            
-            if (currentLineIndex > 0) {
-                prevButton.style.display = 'inline-block';
+
+            if (currentLineIndex === 0) {
+                prevButton.disabled = true;
             } else {
-                prevButton.style.display = 'none';
+                prevButton.disabled = false;
             }
-            
-            if (currentLineIndex + linesPerPage < lines.length) {
-                nextButton.style.display = 'inline-block';
+
+            if (currentLineIndex >= lines.length) {
+                nextButton.disabled = true;
             } else {
-                nextButton.style.display = 'none';
+                nextButton.disabled = false;
             }
         }
-
-        // Configuración inicial al cargar la página
-        window.onload = function() {
-            currentSpeed = calculateSpeed(wordsPerMinute); // 500 palabras por minuto
-            currentSpeedDisplay.textContent = wordsPerMinute;
-            wordsPerLineDisplay.textContent = wordsPerLine;
-            document.getElementById('reading-time-display').textContent = readingTime;
-            updateTimerDisplay();
-        };
     </script>
 </body>
 </html>
