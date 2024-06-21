@@ -154,7 +154,7 @@
         }
 
         function displayPreviousPage() {
-            const startLine = Math.max(0, currentLineIndex - linesPerPage * 2); // Ir dos páginas atrás para evitar recargar la página actual
+            const startLine = Math.max(0, currentLineIndex - linesPerPage);
             currentLineIndex = startLine;
             displayNextPage();
         }
@@ -245,28 +245,23 @@
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
-       
-        function decreaseWordsPerLine() {
-            if (wordsPerLine > 3) {
-                wordsPerLine--;
-                wordsPerLineDisplay.textContent = wordsPerLine;
-                reformatText();
-            }
         }
 
-        function adjustFontSize() {
-            const newSize = fontSizeRange.value + 'px';
-            textContainer.style.fontSize = newSize;
-            fontSizeDisplay.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
+        function decreaseWordsPerLine() {
+            if (wordsPerLine > 3)
+            reformatText();
+            }
         }
 
         function reformatText() {
-            clearInterval(intervalId);
-            currentLineIndex = 0;
             formatText();
-            if (intervalId) {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-            }
+            displayNextPage();
+        }
+
+        function adjustFontSize() {
+            const newSize = fontSizeRange.value;
+            textContainer.style.fontSize = `${newSize}px`;
+            fontSizeDisplay.textContent = `Tamaño actual: ${newSize}px`;
         }
 
         function updateWordCount() {
@@ -274,66 +269,40 @@
         }
 
         function updateProgress() {
-            const wordsRead = currentLineIndex * wordsPerLine;
-            const totalWords = words.length;
-            const progress = (wordsRead / totalWords) * 100;
-            document.getElementById('words-read').textContent = wordsRead;
-            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
-        }
-
-        function nextPage() {
-            currentLineIndex = Math.min(currentLineIndex + linesPerPage, lines.length);
-            displayNextPage();
+            const progress = ((currentLineIndex / lines.length) * 100).toFixed(2);
+            document.getElementById('reading-progress').textContent = `${progress}%`;
         }
 
         function previousPage() {
-            currentLineIndex = Math.max(0, currentLineIndex - linesPerPage);
-            displayPreviousPage();
+            currentLineIndex = Math.max(0, currentLineIndex - linesPerPage * 2);
+            displayNextPage();
+        }
+
+        function nextPage() {
+            displayNextPage();
         }
 
         function increaseReadingTime() {
-            readingTime++;
+            readingTime += 1;
+            updateReadingTime();
+        }
+
+        function decreaseReadingTime() {
+            if (readingTime > 1) {
+                readingTime -= 1;
+                updateReadingTime();
+            }
+        }
+
+        function updateReadingTime() {
             document.getElementById('reading-time-display').textContent = readingTime;
             timeLeft = readingTime * 60;
             updateTimerDisplay();
         }
 
-        function decreaseReadingTime() {
-            if (readingTime > 1) {
-                readingTime--;
-                document.getElementById('reading-time-display').textContent = readingTime;
-                timeLeft = readingTime * 60;
-                updateTimerDisplay();
-            }
-        }
-
         window.onload = function() {
-            currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
-            currentSpeedDisplay.textContent = wordsPerMinute;
-            wordsPerLineDisplay.textContent = wordsPerLine;
-            document.getElementById('reading-time-display').textContent = readingTime;
-            updateTimerDisplay();
+            adjustFontSize();
         };
-
-        let isActive = true; // Variable para controlar si el usuario está activo
-
-        function handleVisibilityChange() {
-            if (document.visibilityState === 'visible') {
-                if (isActive && intervalId) {
-                    startTimer();
-                }
-                document.getElementById('toggle-reading').textContent = 'Pausar';
-            } else {
-                clearInterval(intervalId);
-                clearInterval(timerId);
-                intervalId = null;
-                timerId = null;
-                document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
-            }
-        }
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
     </script>
 </body>
 </html>
