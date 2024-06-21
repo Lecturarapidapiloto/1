@@ -74,6 +74,8 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
+        <button onclick="goToPreviousPage()">Página Anterior</button>
+        <button onclick="goToNextPage()">Siguiente Página</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -227,6 +229,7 @@
         }
 
         function calculateSpeed(wpm) {
+            // Convert words per minute to ms per line
             const msPerWord = 60000 / wpm;
             return msPerWord * wordsPerLine;
         }
@@ -248,79 +251,15 @@
         }
 
         function adjustFontSize() {
+            const newSize = fontSize
             const newSize = fontSizeRange.value + 'px';
             textContainer.style.fontSize = newSize;
-            fontSize
-Display.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
+            fontSizeDisplay.textContent = `Tamaño actual: ${newSize}`;
         }
-
-        function reformatText() {
-            clearInterval(intervalId);
-            currentLineIndex = 0;
-            formatText();
-            if (intervalId) {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-            }
-        }
-
-        function updateWordCount() {
-            document.getElementById('total-words').textContent = words.length;
-        }
-
-        function updateProgress() {
-            const wordsRead = currentLineIndex * wordsPerLine;
-            const totalWords = words.length;
-            const progress = (wordsRead / totalWords) * 100;
-            document.getElementById('words-read').textContent = wordsRead;
-            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
-        }
-
-        function increaseReadingTime() {
-            readingTime++;
-            document.getElementById('reading-time-display').textContent = readingTime;
-            timeLeft = readingTime * 60;
-            updateTimerDisplay();
-        }
-
-        function decreaseReadingTime() {
-            if (readingTime > 1) {
-                readingTime--;
-                document.getElementById('reading-time-display').textContent = readingTime;
-                timeLeft = readingTime * 60;
-                updateTimerDisplay();
-            }
-        }
-
-        window.onload = function() {
-            currentSpeed = calculateSpeed(wordsPerMinute);
-            currentSpeedDisplay.textContent = wordsPerMinute;
-            wordsPerLineDisplay.textContent = wordsPerLine;
-            document.getElementById('reading-time-display').textContent = readingTime;
-            updateTimerDisplay();
-        };
-
-        let isActive = true;
-
-        function handleVisibilityChange() {
-            if (document.visibilityState === 'visible') {
-                if (isActive && intervalId) {
-                    startTimer();
-                }
-                document.getElementById('toggle-reading').textContent = 'Pausar';
-            } else {
-                clearInterval(intervalId);
-                clearInterval(timerId);
-                intervalId = null;
-                timerId = null;
-                document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
-            }
-        }
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         function goToPreviousPage() {
-            if (currentLineIndex > 0) {
-                currentLineIndex = Math.max(0, currentLineIndex - linesPerPage);
+            if (currentLineIndex > linesPerPage) {
+                currentLineIndex -= linesPerPage * 2; // Retrocede dos páginas
                 displayNextPage();
             }
         }
@@ -330,6 +269,42 @@ Display.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
                 displayNextPage();
             }
         }
+
+        function reformatText() {
+            formatText();
+        }
+
+        function updateProgress() {
+            const totalLines = lines.length;
+            const linesRead = currentLineIndex;
+            const progressPercent = Math.floor((linesRead / totalLines) * 100);
+            document.getElementById('reading-progress').textContent = `${progressPercent}%`;
+        }
+
+        function updateWordCount() {
+            document.getElementById('total-words').textContent = words.length;
+        }
+
+        function increaseReadingTime() {
+            readingTime++;
+            updateTimeDisplay();
+        }
+
+        function decreaseReadingTime() {
+            if (readingTime > 1) {
+                readingTime--;
+                updateTimeDisplay();
+            }
+        }
+
+        function updateTimeDisplay() {
+            document.getElementById('reading-time-display').textContent = readingTime;
+            timeLeft = readingTime * 60;
+            updateTimerDisplay();
+        }
+
+        updateTimeDisplay(); // Inicializar tiempo de lectura al cargar
+
     </script>
 </body>
 </html>
