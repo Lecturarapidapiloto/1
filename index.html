@@ -275,11 +275,14 @@
         }
 
         function updateProgress() {
-            const totalLines = lines.length;
-            const linesRead = currentLineIndex;
-            const progressPercent = Math.floor((linesRead / totalLines) * 100);
-            document.getElementById('reading-progress').textContent = `${progressPercent}%`;
+            const wordsRead = currentLineIndex * wordsPerLine;
+            const totalWords = words.length;
+            const progress = (wordsRead / totalWords) * 100;
+            document.getElementById('words-read').textContent = wordsRead;
+            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
         }
+
+
 
         function updateWordCount() {
             document.getElementById('total-words').textContent = words.length;
