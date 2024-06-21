@@ -74,6 +74,7 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
+        <button onclick="nextPage()">Siguiente Página</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -183,7 +184,9 @@
             clearInterval(intervalId);
             currentSpeed = calculateSpeed(wordsPerMinute);
             currentSpeedDisplay.textContent = wordsPerMinute;
-            intervalId = setInterval(highlightNextLine, currentSpeed);
+            if (intervalId) {
+                intervalId = setInterval(highlightNextLine, currentSpeed);
+            }
         }
 
         function calculateSpeed(wpm) {
@@ -218,7 +221,18 @@
             clearInterval(intervalId);
             currentLineIndex = 0;
             formatText();
-            intervalId = setInterval(highlightNextLine, currentSpeed);
+            if (intervalId) {
+                intervalId = setInterval(highlightNextLine, currentSpeed);
+            }
+        }
+
+        function nextPage() {
+            clearInterval(intervalId);
+            currentLineIndex = Math.min(currentLineIndex + linesPerPage, lines.length - linesPerPage);
+            displayNextPage();
+            if (intervalId) {
+                intervalId = setInterval(highlightNextLine, currentSpeed);
+            }
         }
 
         function updateWordCount() {
@@ -236,6 +250,7 @@
         // Set default speed to 500 words per minute on load
         window.onload = function() {
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
+            currentSpeedDisplay.textContent = words
             currentSpeedDisplay.textContent = wordsPerMinute;
             wordsPerLineDisplay.textContent = wordsPerLine;
         };
