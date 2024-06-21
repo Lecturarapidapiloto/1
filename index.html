@@ -319,6 +319,22 @@
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
+        function goToPreviousPage() {
+            if (currentLineIndex > 0) {
+                currentLineIndex = Math.max(0, currentLineIndex - linesPerPage);
+                displayNextPage();
+            }
+        }
+
+        function goToNextPage() {
+            if (currentLineIndex < lines.length) {
+                displayNextPage();
+            }
+        }
+
+        // Dentro del bloque <script> existente, justo antes del </script> de cierre.
+        document.getElementById('controls').insertAdjacentHTML('beforeend', '<button onclick="goToPreviousPage()">Página Anterior</button>');
+        document.getElementById('controls').insertAdjacentHTML('beforeend', '<button onclick="goToNextPage()">Siguiente Página</button>');
     </script>
 </body>
 </html>
