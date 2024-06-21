@@ -74,8 +74,6 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
-        <button onclick="goToPreviousPage()">Página Anterior</button>
-        <button onclick="goToNextPage()">Siguiente Página</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -252,7 +250,8 @@
         function adjustFontSize() {
             const newSize = fontSizeRange.value + 'px';
             textContainer.style.fontSize = newSize;
-            fontSizeDisplay.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
+            fontSize
+Display.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
         }
 
         function reformatText() {
@@ -331,10 +330,6 @@
                 displayNextPage();
             }
         }
-
-        // Dentro del bloque <script> existente, justo antes del </script> de cierre.
-        document.getElementById('controls').insertAdjacentHTML('beforeend', '<button onclick="goToPreviousPage()">Página Anterior</button>');
-        document.getElementById('controls').insertAdjacentHTML('beforeend', '<button onclick="goToNextPage()">Siguiente Página</button>');
     </script>
 </body>
 </html>
