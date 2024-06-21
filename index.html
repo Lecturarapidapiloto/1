@@ -81,11 +81,19 @@
         <p>Palabras leídas: <span id="words-read">0</span></p>
         <p>Porcentaje de avance: <span id="reading-progress">0%</span></p>
     </div>
+    <div id="timer-control">
+        <label for="reading-time">Tiempo de lectura (minutos):</label>
+        <button onclick="decreaseReadingTime()">-</button>
+        <span id="reading-time-display">5</span>
+        <button onclick="increaseReadingTime()">+</button>
+        <p>Tiempo restante: <span id="time-left">5:00</span></p>
+    </div>
 
     <script>
         let words = [];
         let currentLineIndex = 0;
         let intervalId;
+        let timerId;
         let currentSpeed = 1200; // Velocidad en ms por línea
         let wordsPerMinute = 500; // Velocidad inicial en palabras por minuto
         const textContainer = document.getElementById('text-container');
@@ -96,6 +104,8 @@
         let wordsPerLine = 10;
         const linesPerPage = 20; // Aumentado a 20 renglones por página
         let lines = [];
+        let readingTime = 5; // Tiempo de lectura en minutos
+        let timeLeft = readingTime * 60; // Tiempo restante en segundos
 
         document.getElementById('file-input').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -160,12 +170,38 @@
             const button = document.getElementById('toggle-reading');
             if (intervalId) {
                 clearInterval(intervalId);
+                clearInterval(timerId);
                 intervalId = null;
+                timerId = null;
                 button.textContent = 'Iniciar Lectura';
             } else {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
+                startTimer();
                 button.textContent = 'Pausar';
             }
+        }
+
+        function startTimer() {
+            timeLeft = readingTime * 60;
+            updateTimerDisplay();
+            timerId = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(intervalId);
+                    clearInterval(timerId);
+                    intervalId = null;
+                    timerId = null;
+                    document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('time-left').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
         function increaseSpeed() {
@@ -206,6 +242,7 @@
         function decreaseWordsPerLine() {
             if (wordsPerLine > 3) {
                 wordsPerLine--;
+                wordsPerLineDisplay.text
                 wordsPerLineDisplay.textContent = wordsPerLine;
                 reformatText();
             }
@@ -226,15 +263,6 @@
             }
         }
 
-        function nextPage() {
-            clearInterval(intervalId);
-            currentLineIndex = Math.min(currentLineIndex + linesPerPage, lines.length - linesPerPage);
-            displayNextPage();
-            if (intervalId) {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-            }
-        }
-
         function updateWordCount() {
             document.getElementById('total-words').textContent = words.length;
         }
@@ -247,12 +275,34 @@
             document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
         }
 
+        function nextPage() {
+            currentLineIndex = Math.min(currentLineIndex + linesPerPage, lines.length);
+            displayNextPage();
+        }
+
+        function increaseReadingTime() {
+            readingTime++;
+            document.getElementById('reading-time-display').textContent = readingTime;
+            timeLeft = readingTime * 60;
+            updateTimerDisplay();
+        }
+
+        function decreaseReadingTime() {
+            if (readingTime > 1) {
+                readingTime--;
+                document.getElementById('reading-time-display').textContent = readingTime;
+                timeLeft = readingTime * 60;
+                updateTimerDisplay();
+            }
+        }
+
         // Set default speed to 500 words per minute on load
         window.onload = function() {
             currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
-            currentSpeedDisplay.textContent = words
             currentSpeedDisplay.textContent = wordsPerMinute;
             wordsPerLineDisplay.textContent = wordsPerLine;
+            document.getElementById('reading-time-display').textContent = readingTime;
+            updateTimerDisplay();
         };
     </script>
 </body>
