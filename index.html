@@ -167,19 +167,21 @@
         }
 
         function toggleReading() {
-            const button = document.getElementById('toggle-reading');
-            if (intervalId) {
-                clearInterval(intervalId);
-                clearInterval(timerId);
-                intervalId = null;
-                timerId = null;
-                button.textContent = 'Iniciar Lectura';
-            } else {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-                startTimer();
-                button.textContent = 'Pausar';
-            }
-        }
+    const button = document.getElementById('toggle-reading');
+    if (intervalId) {
+        clearInterval(intervalId);
+        clearInterval(timerId);
+        intervalId = null;
+        timerId = null;
+        isActive = false;
+        button.textContent = 'Iniciar Lectura';
+    } else {
+        intervalId = setInterval(highlightNextLine, currentSpeed);
+        isActive = true;
+        startTimer();
+        button.textContent = 'Pausar';
+    }
+}
 
         function startTimer() {
             timeLeft = readingTime * 60;
@@ -304,6 +306,26 @@
             document.getElementById('reading-time-display').textContent = readingTime;
             updateTimerDisplay();
         };
+        let isActive = true; // Variable para controlar si el usuario está activo
+
+function handleVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+        if (isActive && intervalId) {
+            // Reiniciar el temporizador solo si el usuario está activo y hay una lectura en curso
+            startTimer();
+        }
+        document.getElementById('toggle-reading').textContent = 'Pausar';
+    } else {
+        clearInterval(intervalId);
+        clearInterval(timerId);
+        intervalId = null;
+        timerId = null;
+        document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
+    }
+}
+
+document.addEventListener('visibilitychange', handleVisibilityChange);
+
     </script>
 </body>
 </html>
