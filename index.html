@@ -74,8 +74,6 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
-        <button onclick="previousPage()">Página Anterior</button>
-        <button onclick="nextPage()">Siguiente Página</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -133,10 +131,10 @@
                 pageContent += words[i] + ' ';
             }
             lines = pageContent.trim().split('\n');
-            displayNextPage();
+            displayPage();
         }
 
-        function displayNextPage() {
+        function displayPage() {
             textContainer.innerHTML = '';
             const startLine = currentLineIndex;
             const endLine = Math.min(currentLineIndex + linesPerPage, lines.length);
@@ -144,19 +142,9 @@
                 const lineDiv = document.createElement('div');
                 lineDiv.textContent = lines[i];
                 lineDiv.className = 'line';
-                if (i === startLine) {
-                    lineDiv.classList.add('highlight');
-                }
                 textContainer.appendChild(lineDiv);
             }
-            currentLineIndex = endLine;
             updateProgress();
-        }
-
-        function displayPreviousPage() {
-            const startLine = Math.max(0, currentLineIndex - linesPerPage);
-            currentLineIndex = startLine;
-            displayNextPage();
         }
 
         function highlightNextLine() {
@@ -168,7 +156,14 @@
                     currentLine.nextElementSibling.classList.remove('line');
                     currentLine.nextElementSibling.classList.add('highlight');
                 } else {
-                    displayNextPage();
+                    currentLineIndex += linesPerPage;
+                    displayPage();
+                }
+            } else {
+                const firstLine = textContainer.querySelector('.line');
+                if (firstLine) {
+                    firstLine.classList.remove('line');
+                    firstLine.classList.add('highlight');
                 }
             }
         }
@@ -180,11 +175,9 @@
                 clearInterval(timerId);
                 intervalId = null;
                 timerId = null;
-                isActive = false;
                 button.textContent = 'Iniciar Lectura';
             } else {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
-                isActive = true;
                 startTimer();
                 button.textContent = 'Pausar';
             }
@@ -228,10 +221,10 @@
         function updateSpeed() {
             clearInterval(intervalId);
             currentSpeed = calculateSpeed(wordsPerMinute);
-            currentSpeedDisplay.textContent = wordsPerMinute;
             if (intervalId) {
                 intervalId = setInterval(highlightNextLine, currentSpeed);
             }
+            document.getElementById('current-speed').textContent = wordsPerMinute;
         }
 
         function calculateSpeed(wpm) {
@@ -248,16 +241,17 @@
         }
 
         function decreaseWordsPerLine() {
-            if (wordsPerLine > 3)
-            reformatText();
+            if (wordsPerLine > 3) {
+                wordsPerLine--;
+                wordsPerLineDisplay.textContent = wordsPerLine;
+                reformatText();
             }
         }
 
-        function reformatText() {
-            formatText();
-            displayNextPage();
-        }
-
+        function adjustFontSize() {
+            const newSize = fontSizeRange.value;
+            textContainer.style.fontSize = `${newSize}px`;
+            fontSizeDisplay.textContent = `Tamaño actual: ${newSize}px
         function adjustFontSize() {
             const newSize = fontSizeRange.value;
             textContainer.style.fontSize = `${newSize}px`;
@@ -271,15 +265,6 @@
         function updateProgress() {
             const progress = ((currentLineIndex / lines.length) * 100).toFixed(2);
             document.getElementById('reading-progress').textContent = `${progress}%`;
-        }
-
-        function previousPage() {
-            currentLineIndex = Math.max(0, currentLineIndex - linesPerPage * 2);
-            displayNextPage();
-        }
-
-        function nextPage() {
-            displayNextPage();
         }
 
         function increaseReadingTime() {
@@ -303,6 +288,3 @@
         window.onload = function() {
             adjustFontSize();
         };
-    </script>
-</body>
-</html>
