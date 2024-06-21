@@ -74,6 +74,7 @@
         <button onclick="decreaseWordsPerLine()">-</button>
         <span id="words-per-line-display">10</span>
         <button onclick="increaseWordsPerLine()">+</button>
+        <button onclick="nextPage()">Siguiente Página</button>
     </div>
     <div>
         <p>Total de palabras: <span id="total-words">0</span></p>
@@ -149,7 +150,6 @@
             }
             currentLineIndex = endLine;
             updateProgress();
-            updatePageButtons(); // Llamamos a la función para actualizar los botones de página
         }
 
         function highlightNextLine() {
@@ -167,19 +167,21 @@
         }
 
         function toggleReading() {
-            const button = document.getElementById('toggle-reading');
-            if (intervalId) {
-                clearInterval(intervalId);
-                clearInterval(timerId);
-                intervalId = null;
-                timerId = null;
-                button.textContent = 'Iniciar Lectura';
-            } else {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-                startTimer();
-                button.textContent = 'Pausar';
-            }
-        }
+    const button = document.getElementById('toggle-reading');
+    if (intervalId) {
+        clearInterval(intervalId);
+        clearInterval(timerId);
+        intervalId = null;
+        timerId = null;
+        isActive = false;
+        button.textContent = 'Iniciar Lectura';
+    } else {
+        intervalId = setInterval(highlightNextLine, currentSpeed);
+        isActive = true;
+        startTimer();
+        button.textContent = 'Pausar';
+    }
+}
 
         function startTimer() {
             timeLeft = readingTime * 60;
@@ -226,6 +228,7 @@
         }
 
         function calculateSpeed(wpm) {
+            // Convert words per minute to ms per line
             const msPerWord = 60000 / wpm;
             return msPerWord * wordsPerLine;
         }
@@ -248,60 +251,81 @@
         }
 
         function adjustFontSize() {
-        function decreaseWordsPerLine() {
-            if (wordsPerLine > 3) {
-                wordsPerLine--;
-                wordsPerLineDisplay.textContent = wordsPerLine;
-                reformatText();
-            }
-        }
-
-        function adjustFontSize() {
             const newSize = fontSizeRange.value + 'px';
             textContainer.style.fontSize = newSize;
-            fontSizeDisplay.textContent = 'Tamaño actual: ' + newSize;
+            fontSizeDisplay.textContent = 'Tamaño actual: ' + fontSizeRange.value + 'px';
+        }
+
+        function reformatText() {
+            clearInterval(intervalId);
+            currentLineIndex = 0;
+            formatText();
+            if (intervalId) {
+                intervalId = setInterval(highlightNextLine, currentSpeed);
+            }
         }
 
         function updateWordCount() {
             document.getElementById('total-words').textContent = words.length;
         }
 
-        function reformatText() {
-            formatText();
-            displayNextPage();
-        }
-
         function updateProgress() {
-            const progress = ((currentLineIndex / lines.length) * 100).toFixed(2);
-            document.getElementById('reading-progress').textContent = progress + '%';
-            document.getElementById('words-read').textContent = currentLineIndex * wordsPerLine;
-        }
-
-        function previousPage() {
-            currentLineIndex = Math.max(0, currentLineIndex - linesPerPage);
-            displayNextPage();
+            const wordsRead = currentLineIndex * wordsPerLine;
+            const totalWords = words.length;
+            const progress = (wordsRead / totalWords) * 100;
+            document.getElementById('words-read').textContent = wordsRead;
+            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
         }
 
         function nextPage() {
+            currentLineIndex = Math.min(currentLineIndex + linesPerPage, lines.length);
             displayNextPage();
         }
 
-        function updatePageButtons() {
-            const prevButton = document.getElementById('prev-page');
-            const nextButton = document.getElementById('next-page');
+        function increaseReadingTime() {
+            readingTime++;
+            document.getElementById('reading-time-display').textContent = readingTime;
+            timeLeft = readingTime * 60;
+            updateTimerDisplay();
+        }
 
-            if (currentLineIndex === 0) {
-                prevButton.disabled = true;
-            } else {
-                prevButton.disabled = false;
-            }
-
-            if (currentLineIndex >= lines.length) {
-                nextButton.disabled = true;
-            } else {
-                nextButton.disabled = false;
+        function decreaseReadingTime() {
+            if (readingTime > 1) {
+                readingTime--;
+                document.getElementById('reading-time-display').textContent = readingTime;
+                timeLeft = readingTime * 60;
+                updateTimerDisplay();
             }
         }
+
+        // Set default speed to 500 words per minute on load
+        window.onload = function() {
+            currentSpeed = calculateSpeed(wordsPerMinute); // 500 wpm
+            currentSpeedDisplay.textContent = wordsPerMinute;
+            wordsPerLineDisplay.textContent = wordsPerLine;
+            document.getElementById('reading-time-display').textContent = readingTime;
+            updateTimerDisplay();
+        };
+        let isActive = true; // Variable para controlar si el usuario está activo
+
+function handleVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+        if (isActive && intervalId) {
+            // Reiniciar el temporizador solo si el usuario está activo y hay una lectura en curso
+            startTimer();
+        }
+        document.getElementById('toggle-reading').textContent = 'Pausar';
+    } else {
+        clearInterval(intervalId);
+        clearInterval(timerId);
+        intervalId = null;
+        timerId = null;
+        document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
+    }
+}
+
+document.addEventListener('visibilitychange', handleVisibilityChange);
+
     </script>
 </body>
 </html>
