@@ -156,10 +156,10 @@
         currentLineIndex = endLine;
         updateProgress();
 
-        // Espera 1 segundo antes de retomar lectura
+        // Espera 2 segundo antes de retomar lectura
         setTimeout(() => {
             intervalId = setInterval(highlightNextLine, currentSpeed);
-        }, 1000);
+        }, 2000);
     }
 
     function highlightNextLine() {
