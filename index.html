@@ -9,19 +9,19 @@
         margin: 20px;
     }
     #text-container {
-        font-size: 2.4vw; /* Tamaño de fuente relativo a la ventana */
+        font-size: 2.4vw;
         line-height: 1.5;
-        max-width: 90%; /* Max ancho del contenedor */
+        max-width: 90%;
         margin: auto;
         white-space: pre-wrap;
-        height: auto; /* Ajustar altura automáticamente */
-        max-height: 75vh; /* Altura máxima relativa a la ventana */
+        height: auto;
+        max-height: 75vh;
         overflow: hidden;
         text-align: justify;
-        background-color: #f5f5f5; /* Fondo claro para mejor lectura */
+        background-color: #f5f5f5;
         padding: 10px;
-        border-radius: 10px; /* Esquinas redondeadas */
-        text-align: center; /* Añadir centrado del texto */
+        border-radius: 10px;
+        text-align: center;
     }
     .line {
         opacity: 0.3;
@@ -37,7 +37,7 @@
     button, label, input {
         margin: 5px;
         padding: 10px;
-        font-size: 1.2em; /* Tamaño de fuente relativo */
+        font-size: 1.2em;
     }
     #font-size-control {
         margin-bottom: 10px;
@@ -48,15 +48,14 @@
     }
     @media (max-width: 600px) {
         #text-container {
-            font-size: 4vw; /* Ajuste de tamaño de fuente para pantallas pequeñas */
+            font-size: 4vw;
         }
         button, label, input {
-            font-size: 1em; /* Ajuste de tamaño de controles para pantallas pequeñas */
+            font-size: 1em;
             padding: 8px;
         }
     }
 </style>
-
 </head>
 <body>
     <h1>Lectura Rápida</h1>
@@ -92,224 +91,223 @@
         <p>Tiempo restante: <span id="time-left">5:00</span></p>
     </div>
 
-    <script>
-        let words = [];
-        let currentLineIndex = 0;
-        let intervalId;
-        let timerId;
-        let currentSpeed = 1200; // Velocidad en ms por línea
-        let wordsPerMinute = 500; // Velocidad inicial en palabras por minuto
-        const textContainer = document.getElementById('text-container');
-        const currentSpeedDisplay = document.getElementById('current-speed');
-        const wordsPerLineDisplay = document.getElementById('words-per-line-display');
-        const fontSizeRange = document.getElementById('font-size-range');
-        const fontSizeDisplay = document.getElementById('font-size-display');
-        let wordsPerLine = 10;
-        const linesPerPage = 20; // Aumentado a 20 renglones por página
-        let lines = [];
-        let readingTime = 5; // Tiempo de lectura en minutos
-        let timeLeft = readingTime * 60; // Tiempo restante en segundos
+<script>
+    let words = [];
+    let currentLineIndex = 0;
+    let intervalId;
+    let timerId;
+    let currentSpeed = 1200;
+    let wordsPerMinute = 500;
+    const textContainer = document.getElementById('text-container');
+    const currentSpeedDisplay = document.getElementById('current-speed');
+    const wordsPerLineDisplay = document.getElementById('words-per-line-display');
+    const fontSizeRange = document.getElementById('font-size-range');
+    const fontSizeDisplay = document.getElementById('font-size-display');
+    let wordsPerLine = 10;
+    const linesPerPage = 20;
+    let lines = [];
+    let readingTime = 5;
+    let timeLeft = readingTime * 60;
 
-        document.getElementById('file-input').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const text = e.target.result;
-                    words = text.split(/\s+/);
-                    textContainer.textContent = '';
-                    formatText();
-                    updateWordCount();
-                };
-                reader.readAsText(file);
-            }
-        });
+    document.getElementById('file-input').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                words = text.split(/\s+/);
+                textContainer.textContent = '';
+                formatText();
+                updateWordCount();
+            };
+            reader.readAsText(file);
+        }
+    });
 
-        function formatText() {
-            let pageContent = '';
-            lines = [];
-            for (let i = 0; i < words.length; i++) {
-                if (i % wordsPerLine === 0 && i !== 0) {
-                    pageContent += '\n';
-                }
-                pageContent += words[i] + ' ';
+    function formatText() {
+        let pageContent = '';
+        lines = [];
+        for (let i = 0; i < words.length; i++) {
+            if (i % wordsPerLine === 0 && i !== 0) {
+                pageContent += '\n';
             }
-            lines = pageContent.trim().split('\n');
-            displayNextPage();
+            pageContent += words[i] + ' ';
+        }
+        lines = pageContent.trim().split('\n');
+        displayNextPage();
+    }
+
+    function displayNextPage() {
+        clearInterval(intervalId); // Pausa al cambiar de página
+        textContainer.innerHTML = '';
+        const startLine = currentLineIndex;
+        const endLine = Math.min(currentLineIndex + linesPerPage, lines.length);
+
+        for (let i = startLine; i < endLine; i++) {
+            const lineDiv = document.createElement('div');
+            lineDiv.textContent = lines[i];
+            lineDiv.className = 'line';
+            if (i === startLine) {
+                lineDiv.classList.add('highlight');
+            }
+            textContainer.appendChild(lineDiv);
         }
 
-        function displayNextPage() {
-            textContainer.innerHTML = '';
-            const startLine = currentLineIndex;
-            const endLine = Math.min(currentLineIndex + linesPerPage, lines.length);
-            for (let i = startLine; i < endLine; i++) {
-                const lineDiv = document.createElement('div');
-                lineDiv.textContent = lines[i];
-                lineDiv.className = 'line';
-                if (i === startLine) {
-                    lineDiv.classList.add('highlight');
-                }
-                textContainer.appendChild(lineDiv);
-            }
-            currentLineIndex = endLine;
-            updateProgress();
-        }
+        currentLineIndex = endLine;
+        updateProgress();
 
-        function highlightNextLine() {
-            const currentLine = textContainer.querySelector('.highlight');
-            if (currentLine) {
-                currentLine.classList.remove('highlight');
-                currentLine.classList.add('line');
-                if (currentLine.nextElementSibling) {
-                    currentLine.nextElementSibling.classList.remove('line');
-                    currentLine.nextElementSibling.classList.add('highlight');
-                } else {
-                    displayNextPage();
-                }
+        // Espera 1 segundo antes de retomar lectura
+        setTimeout(() => {
+            intervalId = setInterval(highlightNextLine, currentSpeed);
+        }, 1000);
+    }
+
+    function highlightNextLine() {
+        const currentLine = textContainer.querySelector('.highlight');
+        if (currentLine) {
+            currentLine.classList.remove('highlight');
+            currentLine.classList.add('line');
+            if (currentLine.nextElementSibling) {
+                currentLine.nextElementSibling.classList.remove('line');
+                currentLine.nextElementSibling.classList.add('highlight');
+            } else {
+                displayNextPage();
             }
         }
+    }
 
-        function toggleReading() {
-            const button = document.getElementById('toggle-reading');
-            if (intervalId) {
+    function toggleReading() {
+        const button = document.getElementById('toggle-reading');
+        if (intervalId) {
+            clearInterval(intervalId);
+            clearInterval(timerId);
+            intervalId = null;
+            timerId = null;
+            button.textContent = 'Iniciar Lectura';
+        } else {
+            intervalId = setInterval(highlightNextLine, currentSpeed);
+            startTimer();
+            button.textContent = 'Pausar';
+        }
+    }
+
+    function startTimer() {
+        timeLeft = readingTime * 60;
+        updateTimerDisplay();
+        timerId = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateTimerDisplay();
+            } else {
                 clearInterval(intervalId);
                 clearInterval(timerId);
                 intervalId = null;
                 timerId = null;
-                isActive = false;
-                button.textContent = 'Iniciar Lectura';
-            } else {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-                isActive = true;
-                startTimer();
-                button.textContent = 'Pausar';
+                document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
             }
-        }
+        }, 1000);
+    }
 
-        function startTimer() {
-            timeLeft = readingTime * 60;
-            updateTimerDisplay();
-            timerId = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateTimerDisplay();
-                } else {
-                    clearInterval(intervalId);
-                    clearInterval(timerId);
-                    intervalId = null;
-                    timerId = null;
-                    document.getElementById('toggle-reading').textContent = 'Iniciar Lectura';
-                }
-            }, 1000);
-        }
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('time-left').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
 
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            document.getElementById('time-left').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
+    function increaseSpeed() {
+        wordsPerMinute += 50;
+        updateSpeed();
+    }
 
-        function increaseSpeed() {
-            wordsPerMinute += 50;
+    function decreaseSpeed() {
+        if (wordsPerMinute > 50) {
+            wordsPerMinute -= 50;
             updateSpeed();
         }
+    }
 
-        function decreaseSpeed() {
-            if (wordsPerMinute > 50) {
-                wordsPerMinute -= 50;
-                updateSpeed();
-            }
+    function updateSpeed() {
+        clearInterval(intervalId);
+        currentSpeed = calculateSpeed(wordsPerMinute);
+        currentSpeedDisplay.textContent = wordsPerMinute;
+        intervalId = setInterval(highlightNextLine, currentSpeed);
+    }
+
+    function calculateSpeed(wpm) {
+        const msPerWord = 60000 / wpm;
+        return msPerWord * wordsPerLine;
+    }
+
+    function increaseWordsPerLine() {
+        if (wordsPerLine < 12) {
+            wordsPerLine++;
+            wordsPerLineDisplay.textContent = wordsPerLine;
+            reformatText();
         }
+    }
 
-        function updateSpeed() {
-            clearInterval(intervalId);
-            currentSpeed = calculateSpeed(wordsPerMinute);
-            currentSpeedDisplay.textContent = wordsPerMinute;
-            if (intervalId) {
-                intervalId = setInterval(highlightNextLine, currentSpeed);
-            }
+    function decreaseWordsPerLine() {
+        if (wordsPerLine > 3) {
+            wordsPerLine--;
+            wordsPerLineDisplay.textContent = wordsPerLine;
+            reformatText();
         }
+    }
 
-        function calculateSpeed(wpm) {
-            // Convert words per minute to ms per line
-            const msPerWord = 60000 / wpm;
-            return msPerWord * wordsPerLine;
+    function adjustFontSize() {
+        const newSize = fontSizeRange.value + 'px';
+        textContainer.style.fontSize = newSize;
+        fontSizeDisplay.textContent = `Tamaño actual: ${fontSizeRange.value}px`;
+    }
+
+    function goToPreviousPage() {
+        if (currentLineIndex > linesPerPage) {
+            currentLineIndex -= linesPerPage * 2;
+            displayNextPage();
         }
+    }
 
-        function increaseWordsPerLine() {
-            if (wordsPerLine < 12) {
-                wordsPerLine++;
-                wordsPerLineDisplay.textContent = wordsPerLine;
-                reformatText();
-            }
+    function goToNextPage() {
+        if (currentLineIndex < lines.length) {
+            displayNextPage();
         }
+    }
 
-        function decreaseWordsPerLine() {
-            if (wordsPerLine > 3) {
-                wordsPerLine--;
-                wordsPerLineDisplay.textContent = wordsPerLine;
-                reformatText();
-            }
-        }
+    function reformatText() {
+        formatText();
+    }
 
-       function adjustFontSize() {
-    const newSize = fontSizeRange.value + 'px';
-    textContainer.style.fontSize = newSize;
-    fontSizeDisplay.textContent = `Tamaño actual: ${fontSizeRange.value}px`;
-}
+    function updateProgress() {
+        const wordsRead = currentLineIndex * wordsPerLine;
+        const totalWords = words.length;
+        const progress = (wordsRead / totalWords) * 100;
+        document.getElementById('words-read').textContent = wordsRead;
+        document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
+    }
 
+    function updateWordCount() {
+        document.getElementById('total-words').textContent = words.length;
+    }
 
-        function goToPreviousPage() {
-            if (currentLineIndex > linesPerPage) {
-                currentLineIndex -= linesPerPage * 2; // Retrocede dos páginas
-                displayNextPage();
-            }
-        }
+    function increaseReadingTime() {
+        readingTime++;
+        updateTimeDisplay();
+    }
 
-        function goToNextPage() {
-            if (currentLineIndex < lines.length) {
-                displayNextPage();
-            }
-        }
-
-        function reformatText() {
-            formatText();
-        }
-
-        function updateProgress() {
-            const wordsRead = currentLineIndex * wordsPerLine;
-            const totalWords = words.length;
-            const progress = (wordsRead / totalWords) * 100;
-            document.getElementById('words-read').textContent = wordsRead;
-            document.getElementById('reading-progress').textContent = progress.toFixed(2) + '%';
-        }
-
-
-
-        function updateWordCount() {
-            document.getElementById('total-words').textContent = words.length;
-        }
-
-        function increaseReadingTime() {
-            readingTime++;
+    function decreaseReadingTime() {
+        if (readingTime > 1) {
+            readingTime--;
             updateTimeDisplay();
         }
+    }
 
-        function decreaseReadingTime() {
-            if (readingTime > 1) {
-                readingTime--;
-                updateTimeDisplay();
-            }
-        }
+    function updateTimeDisplay() {
+        document.getElementById('reading-time-display').textContent = readingTime;
+        timeLeft = readingTime * 60;
+        updateTimerDisplay();
+    }
 
-        function updateTimeDisplay() {
-            document.getElementById('reading-time-display').textContent = readingTime;
-            timeLeft = readingTime * 60;
-            updateTimerDisplay();
-        }
-
-        updateTimeDisplay(); // Inicializar tiempo de lectura al cargar
-
-    </script>
+    updateTimeDisplay();
+</script>
 </body>
 </html>
